@@ -35,7 +35,7 @@ states.xml:
         <string>image/png</string>
       </mimeFormats>
       <wmsUrl>
-        <string>http://demo.opengeo.org/geoserver/topp/wms</string>
+        <string>http://suite.opengeo.org/geoserver/wms</string>
       </wmsUrl>
     </wmsLayer>
 ```
