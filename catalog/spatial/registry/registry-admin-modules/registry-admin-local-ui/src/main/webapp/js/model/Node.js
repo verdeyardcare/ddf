@@ -30,11 +30,17 @@ define([
     var Node = {};
 
     Node.Model = Backbone.Model.extend({
+        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryMetacard',
         createUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/createLocalEntry',
         updateUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/updateLocalEntry',
+        parse: function (raw) {
+            return raw.value.nodes[0];
+        },
 
-        initialize: function () {
+        initialize: function (options) {
+            this.summary = options.summary;
             this.descriptors = FieldDescriptors.retrieveFieldDescriptors();
+
             var model = this;
             if (!model.get('id')) {
                 model.set('id', 'temp-id'); //this id will be replaced on the server with a real uuid
@@ -65,7 +71,6 @@ define([
                 model.get('RegistryObjectList').Service = [];
             }
 
-
             if (!model.get('RegistryObjectList').Organization) {
                 model.get('RegistryObjectList').Organization = [];
             }
@@ -78,9 +83,7 @@ define([
                 model.get('RegistryObjectList').Association = [];
             }
 
-
             this.refreshData();
-
         },
         refreshData: function () {
             this.associationModel = new Association.AssociationModel({
@@ -172,14 +175,18 @@ define([
           }
         },
         sync: function () {
-
             var model = this;
             var mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';
             var operation = 'updateLocalEntry(java.util.Map)';
             var url = this.updateUrl;
             var curId = model.get('id');
             var addOperation = false;
-            if (curId === 'temp-id') {
+            if(!this.registryId){
+                model = this.summary.get('registryId');
+                operation = 'registryMetacard(java.lang.String)';
+                url = this.url;
+                this.registryId = model;
+            } else if (curId === 'temp-id') {
                 addOperation = true;
                 operation = 'createLocalEntry(java.util.Map)';
                 url = this.createUrl;
@@ -221,9 +228,13 @@ define([
         }
     });
 
+    Node.Summary = Backbone.Model.extend({
+
+    });
+
     Node.Models = Backbone.Collection.extend({
-        model: Node.Model,
-        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacards',
+        model: Node.Summary,
+        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacardsSummary',
         deleteUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/deleteLocalEntry',
 
         parse: function (raw) {
@@ -233,24 +244,25 @@ define([
         },
         getSecondaryNodes: function() {
             return this.models.filter(function(model){
-                var transValues = model.get('TransientValues');
-                return transValues && !transValues['registry.local.registry-identity-node'] && transValues['registry.local.registry-local-node'];
+                return model.get('localNode') && !model.get('identityNode');
+                // var transValues = model.get('TransientValues');
+                // return transValues && !transValues['registry.local.registry-identity-node'] && transValues['registry.local.registry-local-node'];
             });
         },
         getIdentityNode: function(){
             var array = this.models.filter(function(model){
-                return model.get('TransientValues') && model.get('TransientValues')['registry.local.registry-identity-node'];
+                return model.get('identityNode');
             });
             if(array.length === 1){
-                array[0].set('identityNode',true);
+                // array[0].set('identityNode',true);
                 return array[0];
             }
             return undefined;
         },
         getRemoteNodes: function(){
             return this.models.filter(function(model){
-                var transValues = model.get('TransientValues');
-                return !transValues || !transValues['registry.local.registry-local-node'];
+                return !model.get('localNode');
+                // return !transValues || !transValues['registry.local.registry-local-node'];
             });
         },
         deleteNodes: function (nodes) {

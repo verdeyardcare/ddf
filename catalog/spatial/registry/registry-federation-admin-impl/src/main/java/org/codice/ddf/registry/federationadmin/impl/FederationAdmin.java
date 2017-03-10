@@ -415,6 +415,64 @@ public class FederationAdmin implements FederationAdminMBean {
     }
 
     @Override
+    public Map<String, Object> registryMetacard(String registryId) {
+        Map<String, Object> nodes = new HashMap<>();
+        List<Map<String, Object>> registryMetacardInfo = new ArrayList<>();
+        try {
+            List<RegistryPackageType> registryMetacardObjects = Collections.singletonList(
+                    federationAdminService.getRegistryObjectByRegistryId(registryId));
+
+            List<Metacard> metacards = federationAdminService.getRegistryMetacardsByRegistryIds(Collections.singletonList(registryId));
+            Map<String, Metacard> metacardByRegistryIdMap = getRegistryIdMetacardMap(metacards);
+
+            registryMetacardInfo = getWebMapsFromRegistryPackages(registryMetacardObjects,
+                    metacardByRegistryIdMap);
+
+        } catch (FederationAdminException e) {
+            LOGGER.info("Couldn't get remote registry metacards ", e);
+        }
+
+        nodes.put(NODES_KEY, registryMetacardInfo);
+
+        return nodes;
+    }
+
+    @Override
+    public Map<String, Object> allRegistryMetacardsSummary() {
+        Map<String, Object> nodes = new HashMap<>();
+        List<Map<String, Object>> registryMetacardInfo = new ArrayList<>();
+        try {
+
+            List<Metacard> metacards = federationAdminService.getRegistryMetacards();
+            for (Metacard metacard : metacards) {
+                Map<String, Object> metacardInfo = new HashMap<>();
+                metacardInfo.put("metacardId", metacard.getId());
+                metacardInfo.put("registryId", RegistryUtility.getRegistryId(metacard));
+                metacardInfo.put("name", metacard.getTitle());
+                metacardInfo.put("created", metacard.getCreatedDate());
+                metacardInfo.put("modified", metacard.getModifiedDate());
+                metacardInfo.put("identityNode", RegistryUtility.isIdentityNode(metacard));
+                metacardInfo.put("localNode", RegistryUtility.isLocalNode(metacard));
+                registryMetacardInfo.add(metacardInfo);
+            }
+
+        } catch (FederationAdminException e) {
+            LOGGER.info("Couldn't get remote registry metacards ", e);
+        }
+
+        if (customSlots != null) {
+            nodes.put(CUSTOM_SLOTS_KEY, customSlots);
+        }
+
+        Map<String, Object> autoPopulateMap = new HashMap<>();
+        autoPopulateMap.put(SERVICE_BINDINGS_KEY, endpointMap.values());
+        nodes.put(AUTO_POPULATE_VALUES_KEY, autoPopulateMap);
+
+        nodes.put(NODES_KEY, registryMetacardInfo);
+        return nodes;
+    }
+
+    @Override
     public void regenerateRegistrySources(List<String> ids) {
         try {
             for(String regId: ids) {

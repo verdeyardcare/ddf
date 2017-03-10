@@ -79,12 +79,16 @@ define([
                 }
             },
             showEditNode: function (node) {
-                wreqr.vent.trigger("showModal",
-                    new NodeModal.View({
-                        model: node,
-                        mode: 'edit'
-                    })
-                );
+
+                var nodeModel = new Node.Model({summary: node, parse: true});
+
+                nodeModel.fetch({success: function(arg){console.log(arg);}});
+                // wreqr.vent.trigger("showModal",
+                //     new NodeModal.View({
+                //         model: nodeModel,
+                //         mode: 'edit'
+                //     })
+                // );
             },
             showAddNode: function () {
                 if (this.model) {
@@ -196,22 +200,24 @@ define([
                 if (this.model) {
                     data = this.model.toJSON();
                 }
+                data.lastUpdated = moment.parseZone(this.model.get('modified')).utc().format('MMM DD, YYYY HH:mm') + 'Z';
+                data.liveDate = moment.parseZone(this.model.get('created')).utc().format('MMM DD, YYYY HH:mm') + 'Z';
 
-                var extrinsicData = this.model.getObjectOfType('urn:registry:federation:node');
-                if (extrinsicData.length === 1) {
-                    data.name = extrinsicData[0].Name;
-                    data.slots = extrinsicData[0].Slot;
-                    data.slots.forEach(function (slotValue) {
-                        if (slotValue.slotType === "xs:dateTime") {
-                            var date = moment.parseZone(slotValue.value[0]).utc().format('MMM DD, YYYY HH:mm') + 'Z';
-                            if (slotValue.name === "lastUpdated") {
-                                data.lastUpdated = date;
-                            } else if (slotValue.name === "liveDate") {
-                                data.liveDate = date;
-                            }
-                        }
-                    });
-                }
+                // var extrinsicData = this.model.getObjectOfType('urn:registry:federation:node');
+                // if (extrinsicData.length === 1) {
+                //     data.name = extrinsicData[0].Name;
+                //     data.slots = extrinsicData[0].Slot;
+                //     data.slots.forEach(function (slotValue) {
+                //         if (slotValue.slotType === "xs:dateTime") {
+                //             var date = moment.parseZone(slotValue.value[0]).utc().format('MMM DD, YYYY HH:mm') + 'Z';
+                //             if (slotValue.name === "lastUpdated") {
+                //                 data.lastUpdated = date;
+                //             } else if (slotValue.name === "liveDate") {
+                //                 data.liveDate = date;
+                //             }
+                //         }
+                //     });
+                // }
                 return data;
             }
         });
@@ -249,7 +255,7 @@ define([
                 'click .close': 'cancel'
             },
             deleteNode: function() {
-                 this.model.collection.deleteNodes([this.model.get('id')]);
+                 this.model.collection.deleteNodes([this.model.get('registryId')]);
                  this.close();
             },
             cancel: function() {
@@ -269,7 +275,7 @@ define([
                 return data;
            },
            getNodeName: function() {
-               return this.model.getObjectOfType('urn:registry:federation:node')[0].Name;
+               return this.model.get('name');
            }
         });
 
@@ -336,8 +342,8 @@ define([
                         return;
                     }
                     nodes.push({
-                        name: node.getObjectOfType('urn:registry:federation:node')[0].Name,
-                        id: node.get('id')
+                        name: node.get('name'),
+                        id: node.get('registryId')
                     });
                 });
                 nodes = _.sortBy(nodes, function(o){
