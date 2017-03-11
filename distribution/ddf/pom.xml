@@ -139,7 +139,7 @@
                                 See https://issues.apache.org/jira/browse/MNG-5799 as well
                                 as the related tickets for more details.
                                 -->
-                                <phase>process-resources</phase>
+                                <phase>prepare-package</phase>
                                 <goals>
                                     <goal>unpack</goal>
                                 </goals>
@@ -361,6 +361,11 @@
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf</groupId>
+            <artifactId>docs</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

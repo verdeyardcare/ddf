@@ -74,6 +74,11 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>ddf</groupId>
+            <artifactId>docs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -139,7 +144,7 @@
                 <executions>
                     <execution>
                         <id>minimal-copy</id>
-                        <phase>generate-resources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>copy</goal>
                         </goals>
@@ -178,7 +183,7 @@
                     </execution>
                     <execution>
                         <id>unpack</id>
-                        <phase>generate-resources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>

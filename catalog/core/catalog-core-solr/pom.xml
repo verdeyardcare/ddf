@@ -178,7 +178,7 @@
                 <executions>
                     <execution>
                         <id>unpack</id>
-                        <phase>process-test-resources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
