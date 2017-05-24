@@ -79,9 +79,6 @@ import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
-import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
-import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
@@ -147,9 +144,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Rule
     public TestName testName = new TestName();
-
-    @Rule
-    public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
@@ -1705,7 +1699,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
+    //@ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testMetacardDefinitionJsonFile() throws Exception {
         final String newMetacardTypeName = "new.metacard.type";
         getServiceManager().stopFeature(true, "catalog-security-filter");
@@ -1749,7 +1743,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 return null;
             });
             getServiceManager().startFeature(true, "catalog-security-filter");
-            configureShowInvalidMetacards("false", "false", getAdminConfig());
+            configureShowInvalidMetacardsReset();
         }
     }
 
@@ -1773,7 +1767,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
+    //@ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testDefaultValuesCreate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
@@ -1839,7 +1833,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
+    //@ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testDefaultValuesUpdate() throws Exception {
         final String customMetacardTypeName = "custom";
         File file = ingestDefinitionJsonWithWaitCondition("defaults.json", () -> {
@@ -1912,7 +1906,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
+    //@ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testInjectAttributesOnCreate() throws Exception {
         final String id = ingestXmlFromResource("/metacard-injections.xml");
 
@@ -1946,7 +1940,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
+    //@ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testInjectAttributesOnUpdate() throws Exception {
         final String id = ingestXmlFromResource("/metacard1.xml");
         final String id2 = ingestXmlFromResource("/metacard1.xml");
@@ -2043,7 +2037,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    @ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
+    //@ConditionalIgnore(condition = SkipUnstableTest.class)   // DDF-2743
     public void testTypeValidation() throws Exception {
         String invalidCardId = null;
         String validCardId = null;
